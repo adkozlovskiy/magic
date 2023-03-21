@@ -1,4 +1,4 @@
-package com.example.magic;
+package com.example.magic.screens;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.magic.R;
 import com.google.android.material.card.MaterialCardView;
 
 import java.io.File;
