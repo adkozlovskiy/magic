@@ -1,9 +1,11 @@
 package com.example.magic.screens;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
@@ -46,8 +48,10 @@ public class GameActivity extends AppCompatActivity {
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
-                builder.setTitle("Вы действительно хотите выйти?")
+                AlertDialog dialog = builder.setTitle("Вы действительно хотите выйти?")
                         .setMessage("Прогресс будет сохранен автоматически")
                         .setPositiveButton("Выйти", (dialogInterface, i) -> {
                             dialogInterface.cancel();
@@ -56,7 +60,16 @@ public class GameActivity extends AppCompatActivity {
                         .setNegativeButton("Отмена", (dialogInterface, i) -> {
                             dialogInterface.cancel();
                         })
-                        .create().show();
+                        .create();
+                dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+
+                //Show the dialog!
+                dialog.show();
+
+                //Set the dialog to immersive sticky mode
+                dialog.getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
