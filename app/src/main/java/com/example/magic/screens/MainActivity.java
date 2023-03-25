@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.magic.GameApplication;
 import com.example.magic.R;
 import com.example.magic.models.Game;
 import com.example.magic.services.StorageManager;
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MaterialCardView exit;
 
+    private MaterialCardView _continue;
+
     private StorageManager storageManager;
 
     @Override
@@ -36,26 +39,29 @@ public class MainActivity extends AppCompatActivity {
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        storageManager = new StorageManager(MainActivity.this);
+        storageManager = ((GameApplication) getApplication()).getStorageManager();
 
         startGame = findViewById(R.id.start_game);
         settings = findViewById(R.id.settings);
         exit = findViewById(R.id.exit);
+        _continue = findViewById(R.id.load_game);
 
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                storageManager.newGame();
-            }
+        _continue.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, GameActivity.class);
+            startActivity(intent);
+        });
+
+        View.OnClickListener listener = view -> {
+            storageManager.newGame();
+            Intent intent = new Intent(MainActivity.this, GameActivity.class);
+            startActivity(intent);
         };
 
-        View.OnClickListener listener2 = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-            }
+        View.OnClickListener listener2 = view -> {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
         };
+
 
         startGame.setOnClickListener(listener);
         settings.setOnClickListener(listener2);

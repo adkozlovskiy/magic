@@ -71,7 +71,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
             android:gravity="center"
-            android:text="Start Game"
+            android:text="New Game"
             android:textSize="21sp" />
 
     </com.google.android.material.card.MaterialCardView>

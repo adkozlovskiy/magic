@@ -3,6 +3,9 @@ package com.example.magic.services;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.example.magic.models.Game;
 import com.example.magic.models.Item;
 import com.example.magic.models.Level;
@@ -23,11 +26,13 @@ public class StorageManager {
         this.preferences = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE);
     }
 
+    public MutableLiveData<Game> gameLiveData = new MutableLiveData<>();
+
     public void newGame() {
         Game game = new Game();
         game.setHealth(3);
         game.setItems(new ArrayList<>());
-        game.setLastLocation(Location.MARKET);
+        game.setLastLocation(Location.HOME);
         game.setCurrentLevel(Level.MUM);
         game.setHelpForOldMan(null);
 
@@ -38,6 +43,7 @@ public class StorageManager {
         preferences.edit()
                 .putString(GAME_KEY, new Gson().toJson(game))
                 .apply();
+        gameLiveData.postValue(game);
     }
 
     public Game getGame() {
@@ -97,6 +103,28 @@ public class StorageManager {
         Game game = getGame();
         game.setLastLocation(lastLocation);
         saveGame(game);
+    }
+
+    public void rightLocation() {
+        Location location = Location.MARKET;
+        Game game = getGame();
+        if (game.getLastLocation() == Location.MARKET) {
+            location = Location.FOREST;
+        } else if (game.getLastLocation() == Location.FOREST) {
+            location = Location.CAVE;
+        }
+        setLastLocation(location);
+    }
+
+    public void leftLocation() {
+        Location location = Location.HOME;
+        Game game = getGame();
+        if (game.getLastLocation() == Location.FOREST) {
+            location = Location.MARKET;
+        } else if (game.getLastLocation() == Location.CAVE) {
+            location = Location.FOREST;
+        }
+        setLastLocation(location);
     }
 
     public void gameOver(boolean victory) {
