@@ -32,6 +32,7 @@
         app:layout_constraintStart_toEndOf="@id/heart_one"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <ImageView
         android:id="@+id/heart_three"
         android:layout_width="36dp"
@@ -43,25 +44,41 @@
         app:layout_constraintStart_toEndOf="@id/heart_two"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:id="@+id/inventory"
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:src="@drawable/inventory"
-        app:layout_constraintEnd_toStartOf="@+id/exit"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toStartOf="@+id/exit_card"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/exit"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        <ImageView
+            android:id="@+id/inventory"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_inventory" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/exit_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:src="@drawable/exit"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/exit"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_exit" />
+    </com.google.android.material.card.MaterialCardView>
+
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"

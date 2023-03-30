@@ -36,6 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
         picture = findViewById(R.id.picture);
 
         change.setOnClickListener(v -> {
+
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
