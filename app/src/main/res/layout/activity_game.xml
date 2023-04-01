@@ -79,14 +79,19 @@
             android:src="@drawable/ic_exit" />
     </com.google.android.material.card.MaterialCardView>
 
-
+    <!--    Допустимая область передвижения-->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.6" />
+        app:layout_constraintGuide_percent="0.7" />
+
+    <com.example.magic.screens.GameView
+        android:id="@+id/gameView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <ImageView
         android:id="@+id/right_location"

@@ -1,8 +1,5 @@
 package com.example.magic.screens;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,17 +16,24 @@ import com.example.magic.GameApplication;
 import com.example.magic.R;
 import com.example.magic.databinding.ActivityGameBinding;
 import com.example.magic.models.Location;
+import com.example.magic.models.Transition;
 import com.example.magic.services.StorageManager;
 
 public class GameActivity extends AppCompatActivity {
 
     private ActivityGameBinding binding;
 
+    public ActivityGameBinding getBinding() {
+        return binding;
+    }
+
     private GameViewModel viewModel;
 
     private StorageManager storageManager;
 
     private NavController navController;
+
+    private Location currentLocation;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,11 +44,48 @@ public class GameActivity extends AppCompatActivity {
 
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
+        navController.addOnDestinationChangedListener(
+                (controller, destination, arguments) -> {
+                    if (destination.getId() == R.id.caveFragment) {
+                        currentLocation = Location.CAVE;
+                    } else if (destination.getId() == R.id.houseFragment) {
+                        currentLocation = Location.HOME;
+                    } else if (destination.getId() == R.id.forestFragment) {
+                        currentLocation = Location.FOREST;
+                    } else if (destination.getId() == R.id.marketFragment) {
+                        currentLocation = Location.MARKET;
+                    }
+                }
+        );
+
         storageManager = ((GameApplication) getApplication()).getStorageManager();
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
+        binding.gameView.setEdgeCallback(
+                new EdgeCallback() {
+                    @Override
+                    public void leftEnabled(boolean enabled) {
+                        binding.leftLocation.setEnabled(enabled);
+                        if (enabled) {
+                            binding.leftLocation.setAlpha(1f);
+                        } else {
+                            binding.leftLocation.setAlpha(0.3f);
+                        }
+                    }
+
+                    @Override
+                    public void rightEnabled(boolean enabled) {
+                        binding.rightLocation.setEnabled(enabled);
+                        if (enabled) {
+                            binding.rightLocation.setAlpha(1f);
+                        } else {
+                            binding.rightLocation.setAlpha(0.3f);
+                        }
+                    }
+                }
+        );
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -79,11 +120,11 @@ public class GameActivity extends AppCompatActivity {
         });
 
         binding.rightLocation.setOnClickListener(v -> {
-            storageManager.rightLocation();
+            storageManager.rightLocation(currentLocation);
         });
 
         binding.leftLocation.setOnClickListener(v -> {
-            storageManager.leftLocation();
+            storageManager.leftLocation(currentLocation);
         });
 
         binding.inventory.setOnClickListener(v -> {
@@ -111,26 +152,47 @@ public class GameActivity extends AppCompatActivity {
                     } else {
                         // end game
                     }
+                    Transition transition = game.getLastTransition();
 
-                    if (game.getLastLocation() == Location.HOME) {
+                    if (transition.getTo() == Location.HOME) {
                         binding.leftLocation.setVisibility(View.GONE);
                     } else {
                         binding.leftLocation.setVisibility(View.VISIBLE);
                     }
 
-                    if (game.getLastLocation() == Location.CAVE) {
+                    if (transition.getTo() == Location.CAVE) {
                         binding.rightLocation.setVisibility(View.GONE);
                     } else {
                         binding.rightLocation.setVisibility(View.VISIBLE);
                     }
 
-                    if (game.getLastLocation() == Location.HOME) {
+                    if (transition.getTo() == Location.HOME) {
+                        if (transition.getFrom() == null) {
+                            binding.gameView.positionPlayerLeft();
+                        } else {
+                            binding.gameView.positionPlayerRight();
+                        }
                         navController.navigate(R.id.houseFragment);
-                    } else if (game.getLastLocation() == Location.MARKET) {
+                    } else if (transition.getTo() == Location.MARKET) {
+                        if (transition.getFrom() == Location.HOME) {
+                            binding.gameView.positionPlayerLeft();
+                        } else {
+                            binding.gameView.positionPlayerRight();
+                        }
                         navController.navigate(R.id.marketFragment);
-                    } else if (game.getLastLocation() == Location.CAVE) {
+                    } else if (transition.getTo() == Location.CAVE) {
+                        if (transition.getFrom() == Location.FOREST) {
+                            binding.gameView.positionPlayerLeft();
+                        } else {
+                            binding.gameView.positionPlayerRight();
+                        }
                         navController.navigate(R.id.caveFragment);
-                    } else if (game.getLastLocation() == Location.FOREST) {
+                    } else if (transition.getTo() == Location.FOREST) {
+                        if (transition.getFrom() == Location.MARKET) {
+                            binding.gameView.positionPlayerLeft();
+                        } else {
+                            binding.gameView.positionPlayerRight();
+                        }
                         navController.navigate(R.id.forestFragment);
                     }
                 });

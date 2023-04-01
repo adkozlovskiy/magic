@@ -3,13 +3,13 @@ package com.example.magic.services;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.magic.models.Game;
 import com.example.magic.models.Item;
 import com.example.magic.models.Level;
 import com.example.magic.models.Location;
+import com.example.magic.models.Transition;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -28,11 +28,29 @@ public class StorageManager {
 
     public MutableLiveData<Game> gameLiveData = new MutableLiveData<>();
 
+    public void saveBackgroundImage(String uri) {
+        preferences.edit().putString("background", uri).apply();
+    }
+
+    public String getBackgroundImage() {
+        return preferences.getString("background", null);
+    }
+
+    public void setMusicEnabled(boolean enabled) {
+        preferences.edit().putBoolean("music", enabled).apply();
+    }
+
+    public boolean isMusicEnabled() {
+        return preferences.getBoolean("music", true);
+    }
+
     public void newGame() {
         Game game = new Game();
         game.setHealth(3);
         game.setItems(new ArrayList<>());
-        game.setLastLocation(Location.HOME);
+        game.setLastTransition(
+                new Transition(null, Location.HOME)
+        );
         game.setCurrentLevel(Level.MUM);
         game.setHelpForOldMan(null);
 
@@ -99,32 +117,36 @@ public class StorageManager {
         saveGame(game);
     }
 
-    public void setLastLocation(Location lastLocation) {
+    public void setLastTransition(Transition transition) {
         Game game = getGame();
-        game.setLastLocation(lastLocation);
+        game.setLastTransition(transition);
         saveGame(game);
     }
 
-    public void rightLocation() {
+    public void rightLocation(Location from) {
         Location location = Location.MARKET;
         Game game = getGame();
-        if (game.getLastLocation() == Location.MARKET) {
+        if (game.getLastTransition().getTo() == Location.MARKET) {
             location = Location.FOREST;
-        } else if (game.getLastLocation() == Location.FOREST) {
+        } else if (game.getLastTransition().getTo() == Location.FOREST) {
             location = Location.CAVE;
         }
-        setLastLocation(location);
+        setLastTransition(
+                new Transition(from, location)
+        );
     }
 
-    public void leftLocation() {
+    public void leftLocation(Location from) {
         Location location = Location.HOME;
         Game game = getGame();
-        if (game.getLastLocation() == Location.FOREST) {
+        if (game.getLastTransition().getTo() == Location.FOREST) {
             location = Location.MARKET;
-        } else if (game.getLastLocation() == Location.CAVE) {
+        } else if (game.getLastTransition().getTo() == Location.CAVE) {
             location = Location.FOREST;
         }
-        setLastLocation(location);
+        setLastTransition(
+                new Transition(from, location)
+        );
     }
 
     public void gameOver(boolean victory) {

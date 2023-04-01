@@ -13,8 +13,8 @@ public class Game {
     // Инвентарь
     private List<Item> items;
 
-    // Последняя локация
-    private Location lastLocation;
+    // Последний переход
+    private Transition lastTransition;
 
     // Текущий уровень
     private Level currentLevel;
@@ -53,6 +53,14 @@ public class Game {
         return health;
     }
 
+    public Transition getLastTransition() {
+        return lastTransition;
+    }
+
+    public void setLastTransition(Transition lastTransition) {
+        this.lastTransition = lastTransition;
+    }
+
     public void setHealth(int health) {
         this.health = health;
     }
@@ -65,13 +73,6 @@ public class Game {
         this.items = items;
     }
 
-    public Location getLastLocation() {
-        return lastLocation;
-    }
-
-    public void setLastLocation(Location lastLocation) {
-        this.lastLocation = lastLocation;
-    }
 
     public Level getCurrentLevel() {
         return currentLevel;

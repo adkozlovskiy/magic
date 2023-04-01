@@ -1,5 +1,6 @@
 package com.example.magic.screens.level;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +11,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.magic.databinding.FragmentHomeBinding;
+import com.example.magic.screens.GameActivity;
+import com.example.magic.screens.GameView;
 
 public class HouseFragment extends Fragment {
 
     private FragmentHomeBinding binding;
+
+    private GameView gameView;
+
 
     @Nullable
     @Override
@@ -25,5 +31,11 @@ public class HouseFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        binding.grandma.setOnClickListener(
+                v -> {
+                    ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + 90, binding.grandma.getWidth(), binding.grandma.getHeight());
+                }
+        );
     }
 }
