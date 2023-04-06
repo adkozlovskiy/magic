@@ -1,6 +1,7 @@
 package com.example.magic.screens;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -152,6 +153,7 @@ public class GameActivity extends AppCompatActivity {
                     } else {
                         // end game
                     }
+
                     Transition transition = game.getLastTransition();
 
                     if (transition.getTo() == Location.HOME) {

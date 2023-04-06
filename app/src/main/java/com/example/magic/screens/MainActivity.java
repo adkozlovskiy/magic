@@ -1,21 +1,16 @@
 package com.example.magic.screens;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.magic.GameApplication;
 import com.example.magic.R;
-import com.example.magic.models.Game;
 import com.example.magic.services.StorageManager;
 import com.google.android.material.card.MaterialCardView;
-import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
     private StorageManager storageManager;
 
+    private ImageView background;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,13 +36,13 @@ public class MainActivity extends AppCompatActivity {
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
 
         decorView.setSystemUiVisibility(uiOptions);
-
         storageManager = ((GameApplication) getApplication()).getStorageManager();
 
         startGame = findViewById(R.id.start_game);
         settings = findViewById(R.id.settings);
         exit = findViewById(R.id.exit);
         _continue = findViewById(R.id.load_game);
+        background = findViewById(R.id.image_view);
 
         _continue.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, GameActivity.class);

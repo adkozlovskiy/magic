@@ -5,7 +5,6 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import android.animation.Animator;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
@@ -27,6 +26,8 @@ public class GameView extends FrameLayout {
 
     private ImageView player;
 
+    private boolean firstLayout = true;
+
     private TextView dialog;
 
     private int viewHeight;
@@ -44,28 +45,6 @@ public class GameView extends FrameLayout {
     private FrameLayout.LayoutParams lpDialog = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
 
     private MediaManager mediaManager;
-
-    private Animator.AnimatorListener listener = new Animator.AnimatorListener() {
-        @Override
-        public void onAnimationStart(@NonNull Animator animator) {
-            mediaManager.startSteps();
-        }
-
-        @Override
-        public void onAnimationEnd(@NonNull Animator animator) {
-            mediaManager.stopSteps();
-        }
-
-        @Override
-        public void onAnimationCancel(@NonNull Animator animator) {
-            mediaManager.stopSteps();
-        }
-
-        @Override
-        public void onAnimationRepeat(@NonNull Animator animator) {
-            //
-        }
-    };
 
     public void setEdgeCallback(EdgeCallback edgeCallback) {
         this.edgeCallback = edgeCallback;
@@ -86,13 +65,13 @@ public class GameView extends FrameLayout {
 
         dialog = new TextView(context, attrs);
         dialog.setLayoutParams(lpDialog);
-        dialog.setText("sokmsdomdsoimoisdmoidfsmnoisdfsok ");
 
         int padding = (int) context.getResources().getDimension(R.dimen.padding12);
         dialog.setMaxHeight(250);
         dialog.setMaxWidth(400);
         dialog.setBackground(context.getResources().getDrawable(R.drawable.bg_rounded, context.getTheme()));
         dialog.setPadding(padding, padding, padding, padding);
+        dialog.setVisibility(GONE);
 
         addView(player);
         addView(dialog);
@@ -149,26 +128,30 @@ public class GameView extends FrameLayout {
         super.onLayout(changed, left, top, right, bottom);
         viewHeight = getHeight();
         viewWidth = getWidth();
-        positionPlayerLeft();
+        if (firstLayout) {
+            positionPlayerLeft();
+        }
+        firstLayout = false;
 
-        Log.d("TAG", "GameView: " + viewHeight);
         maxHeight = 0.90f * viewHeight;
         setOnTouchListener(
                 new OnTouchListener() {
                     @Override
                     public boolean onTouch(View view, MotionEvent motionEvent) {
                         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                            if (dialog.getVisibility() == VISIBLE) {
+                                dialog.setVisibility(GONE);
+                                return false;
+                            }
                             float y = motionEvent.getY();
                             if (y < maxHeight) {
                                 y = maxHeight;
                             }
 
-                            move(motionEvent.getX() - player.getWidth() / 2f, y - player.getHeight());
-
-                            edgeCallback.rightEnabled(motionEvent.getX() + player.getWidth() >= viewWidth - EDGE_MARGIN_X * 1.5);
-
-                            edgeCallback.leftEnabled(motionEvent.getX() <= EDGE_MARGIN_X * 1.5);
-
+                            move(motionEvent.getX() - player.getWidth() / 2f, y - player.getHeight(), () -> {
+                                edgeCallback.rightEnabled(motionEvent.getX() + player.getWidth() >= viewWidth - EDGE_MARGIN_X * 1.5);
+                                edgeCallback.leftEnabled(motionEvent.getX() <= EDGE_MARGIN_X * 1.5);
+                            });
                         }
                         return false;
                     }
@@ -176,7 +159,45 @@ public class GameView extends FrameLayout {
         );
     }
 
-    public void move(float x, float y) {
+    public void displayPlayerMessage(String text, float npcX) {
+        float x = player.getX() + player.getWidth();
+        float y = player.getY();
+
+        dialog.setText(text);
+        dialog.setX(x);
+        dialog.setY(y);
+
+        dialog.setAlpha(0f);
+        dialog.animate().setDuration(1000).alpha(1f).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(@NonNull Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(@NonNull Animator animation) {
+                dialog.setAlpha(1f);
+                dialog.setVisibility(VISIBLE);
+            }
+
+            @Override
+            public void onAnimationCancel(@NonNull Animator animation) {
+                dialog.setAlpha(1f);
+                dialog.setVisibility(VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(@NonNull Animator animation) {
+
+            }
+        }).start();
+    }
+
+    public void displayNpcMessage(String text, float x, float y) {
+
+    }
+
+    public void move(float x, float y, Runnable onMoved) {
         float centerPlayer = player.getX() + player.getWidth() / 2f;
 
         boolean left = x >= centerPlayer;
@@ -187,11 +208,31 @@ public class GameView extends FrameLayout {
                 .y(y)
                 .setDuration(1000);
 
-        movementAnimation.setListener(listener);
+        movementAnimation.setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(@NonNull Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(@NonNull Animator animation) {
+                onMoved.run();
+            }
+
+            @Override
+            public void onAnimationCancel(@NonNull Animator animation) {
+                onMoved.run();
+            }
+
+            @Override
+            public void onAnimationRepeat(@NonNull Animator animation) {
+
+            }
+        });
         movementAnimation.start();
     }
 
-    public void npcMove(float x, float y, float width, float height) {
+    public void npcMove(float x, float y, float width, float height, Runnable onMoved) {
         float centerPlayer = player.getX() + player.getWidth() / 2f;
 
         boolean left = x >= centerPlayer;
@@ -210,7 +251,27 @@ public class GameView extends FrameLayout {
                 .y(y)
                 .setDuration(1000);
 
-        movementAnimation.setListener(listener);
+        movementAnimation.setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(@NonNull Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(@NonNull Animator animation) {
+                onMoved.run();
+            }
+
+            @Override
+            public void onAnimationCancel(@NonNull Animator animation) {
+                onMoved.run();
+            }
+
+            @Override
+            public void onAnimationRepeat(@NonNull Animator animation) {
+
+            }
+        });
         movementAnimation.start();
     }
 }

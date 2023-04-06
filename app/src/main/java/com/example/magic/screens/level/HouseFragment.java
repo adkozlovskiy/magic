@@ -1,6 +1,5 @@
 package com.example.magic.screens.level;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +33,9 @@ public class HouseFragment extends Fragment {
 
         binding.grandma.setOnClickListener(
                 v -> {
-                    ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + 90, binding.grandma.getWidth(), binding.grandma.getHeight());
+                    ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + 90, binding.grandma.getWidth(), binding.grandma.getHeight(), () -> {
+                        ((GameActivity) getActivity()).getBinding().gameView.displayPlayerMessage("Привет!", binding.grandma.getX());
+                    });
                 }
         );
     }
