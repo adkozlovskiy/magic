@@ -9,9 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.magic.GameApplication;
 import com.example.magic.databinding.FragmentHomeBinding;
 import com.example.magic.screens.GameActivity;
 import com.example.magic.screens.GameView;
+import com.example.magic.services.StorageManager;
 
 public class HouseFragment extends Fragment {
 
@@ -19,6 +21,7 @@ public class HouseFragment extends Fragment {
 
     private GameView gameView;
 
+    private StorageManager storageManager;
 
     @Nullable
     @Override
@@ -31,11 +34,14 @@ public class HouseFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        storageManager = ((GameApplication) getActivity().getApplication()).getStorageManager();
+
         binding.grandma.setOnClickListener(
                 v -> {
                     ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + 90, binding.grandma.getWidth(), binding.grandma.getHeight(), () -> {
                         ((GameActivity) getActivity()).getBinding().gameView.displayPlayerMessage("Привет!", binding.grandma.getX());
                     });
+                    storageManager.updateHealth(2);
                 }
         );
     }

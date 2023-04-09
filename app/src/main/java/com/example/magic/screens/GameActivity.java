@@ -20,6 +20,8 @@ import com.example.magic.models.Location;
 import com.example.magic.models.Transition;
 import com.example.magic.services.StorageManager;
 
+import java.util.Objects;
+
 public class GameActivity extends AppCompatActivity {
 
     private ActivityGameBinding binding;
@@ -36,6 +38,9 @@ public class GameActivity extends AppCompatActivity {
 
     private Location currentLocation;
 
+    private Transition eventTransition = null;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +48,7 @@ public class GameActivity extends AppCompatActivity {
         binding = ActivityGameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        viewModel.startTimer(60);
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
         navController.addOnDestinationChangedListener(
@@ -63,35 +69,9 @@ public class GameActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
-
-        binding.gameView.setEdgeCallback(
-                new EdgeCallback() {
-                    @Override
-                    public void leftEnabled(boolean enabled) {
-                        binding.leftLocation.setEnabled(enabled);
-                        if (enabled) {
-                            binding.leftLocation.setAlpha(1f);
-                        } else {
-                            binding.leftLocation.setAlpha(0.3f);
-                        }
-                    }
-
-                    @Override
-                    public void rightEnabled(boolean enabled) {
-                        binding.rightLocation.setEnabled(enabled);
-                        if (enabled) {
-                            binding.rightLocation.setAlpha(1f);
-                        } else {
-                            binding.rightLocation.setAlpha(0.3f);
-                        }
-                    }
-                }
-        );
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
                 AlertDialog dialog = builder.setTitle("Вы действительно хотите выйти?")
                         .setMessage("Прогресс будет сохранен автоматически")
@@ -121,27 +101,57 @@ public class GameActivity extends AppCompatActivity {
         });
 
         binding.rightLocation.setOnClickListener(v -> {
-            storageManager.rightLocation(currentLocation);
+            binding.gameView.moveToRightLocation(() -> {
+                Log.d("TAG", "MOVED");
+                storageManager.rightLocation(currentLocation);
+            });
         });
 
         binding.leftLocation.setOnClickListener(v -> {
-            storageManager.leftLocation(currentLocation);
+            binding.gameView.moveToLeftLocation(() -> {
+                Log.d("TAG", "MOVED");
+                storageManager.leftLocation(currentLocation);
+            });
         });
 
         binding.inventory.setOnClickListener(v -> {
+            Log.d("TAG", "MOVED");
             navController.navigate(R.id.inventoryFragment);
         });
 
-        storageManager.gameLiveData.observe(
+        viewModel.timerData.observe(this, s -> {
+            long minutes = s / 60;
+            long seconds = s % 60;
+
+            String text = minutes + ":" + seconds;
+            binding.timer.setText(text);
+
+            if (s <= 10) {
+                binding.timer.setTextColor(
+                        getColor(R.color.red)
+                );
+            }else {
+                binding.timer.setTextColor(
+                        getColor(R.color.white)
+                );
+            }
+
+            if (s == 0) {
+                // TODO game over
+                storageManager.gameOver(false);
+            }
+        });
+
+        storageManager.heath.observe(
                 this,
-                game -> {
-                    if (game.getHealth() >= 1) {
+                health -> {
+                    if (health >= 1) {
                         binding.heartOne.setAlpha(1f);
 
-                        if (game.getHealth() >= 2) {
+                        if (health >= 2) {
                             binding.heartTwo.setAlpha(1f);
 
-                            if (game.getHealth() >= 3) {
+                            if (health >= 3) {
                                 binding.heartThree.setAlpha(1f);
                             } else {
                                 binding.heartThree.setAlpha(0.3f);
@@ -154,7 +164,21 @@ public class GameActivity extends AppCompatActivity {
                         // end game
                     }
 
-                    Transition transition = game.getLastTransition();
+
+                });
+        storageManager.transition.observe(
+                this,
+                transition -> {
+                    if (transition == null || transition.getTo() == null) {
+                        return;
+                    }
+                    Log.d("TAG", "TRANSITION " + transition.getTo() + " " + transition.getFrom());
+                    if ((eventTransition != null && Objects.equals(eventTransition.getFrom(), transition.getFrom())) && Objects.equals(eventTransition.getTo(), transition.getTo())) {
+                        return;
+                    }
+
+                    Log.d("TAG", "EV TRA " + eventTransition);
+                    eventTransition = transition;
 
                     if (transition.getTo() == Location.HOME) {
                         binding.leftLocation.setVisibility(View.GONE);
@@ -197,6 +221,7 @@ public class GameActivity extends AppCompatActivity {
                         }
                         navController.navigate(R.id.forestFragment);
                     }
-                });
+                }
+        );
     }
 }

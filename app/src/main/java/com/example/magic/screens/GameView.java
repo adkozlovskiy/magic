@@ -2,9 +2,9 @@ package com.example.magic.screens;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-import android.animation.Animator;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
@@ -34,21 +34,17 @@ public class GameView extends FrameLayout {
 
     private int viewWidth;
 
-    private EdgeCallback edgeCallback;
-
     private ViewPropertyAnimator movementAnimation;
 
     private ViewPropertyAnimator rotateAnimation;
+
+    private ViewPropertyAnimator dialogAnimation;
 
     private FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
 
     private FrameLayout.LayoutParams lpDialog = new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
 
     private MediaManager mediaManager;
-
-    public void setEdgeCallback(EdgeCallback edgeCallback) {
-        this.edgeCallback = edgeCallback;
-    }
 
     public GameView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -83,8 +79,14 @@ public class GameView extends FrameLayout {
         player.setY(viewHeight - player.getHeight() - EDGE_MARGIN_Y);
 
         smoothRotate(true);
-        edgeCallback.leftEnabled(true);
-        edgeCallback.rightEnabled(false);
+    }
+
+    public void moveToLeftLocation(Runnable onMoved) {
+        move(0f + EDGE_MARGIN_X, player.getY(), onMoved);
+    }
+
+    public void moveToRightLocation(Runnable onMoved) {
+        move(viewWidth - EDGE_MARGIN_X - player.getWidth(), player.getY(), onMoved);
     }
 
     public void positionPlayerRight() {
@@ -92,8 +94,6 @@ public class GameView extends FrameLayout {
         player.setX(viewWidth - EDGE_MARGIN_X - player.getWidth());
         player.setY(viewHeight - player.getHeight() - EDGE_MARGIN_Y);
         smoothRotate(false);
-        edgeCallback.rightEnabled(true);
-        edgeCallback.leftEnabled(false);
     }
 
     public void smoothRotate(boolean left) {
@@ -113,12 +113,14 @@ public class GameView extends FrameLayout {
         if (rotateAnimation != null) {
             rotateAnimation.cancel();
         }
+        rotateAnimation = null;
     }
 
     private void cancelMovementAnimation() {
         if (movementAnimation != null) {
             movementAnimation.cancel();
         }
+        movementAnimation = null;
     }
 
     float maxHeight;
@@ -149,8 +151,6 @@ public class GameView extends FrameLayout {
                             }
 
                             move(motionEvent.getX() - player.getWidth() / 2f, y - player.getHeight(), () -> {
-                                edgeCallback.rightEnabled(motionEvent.getX() + player.getWidth() >= viewWidth - EDGE_MARGIN_X * 1.5);
-                                edgeCallback.leftEnabled(motionEvent.getX() <= EDGE_MARGIN_X * 1.5);
                             });
                         }
                         return false;
@@ -167,30 +167,16 @@ public class GameView extends FrameLayout {
         dialog.setX(x);
         dialog.setY(y);
 
+        if (dialogAnimation != null) {
+            dialogAnimation.cancel();
+        }
+
         dialog.setAlpha(0f);
-        dialog.animate().setDuration(1000).alpha(1f).setListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(@NonNull Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(@NonNull Animator animation) {
-                dialog.setAlpha(1f);
-                dialog.setVisibility(VISIBLE);
-            }
-
-            @Override
-            public void onAnimationCancel(@NonNull Animator animation) {
-                dialog.setAlpha(1f);
-                dialog.setVisibility(VISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(@NonNull Animator animation) {
-
-            }
-        }).start();
+        dialog.setVisibility(VISIBLE);
+        dialogAnimation = dialog.animate()
+                .setDuration(1000)
+                .alpha(1f);
+        dialogAnimation.start();
     }
 
     public void displayNpcMessage(String text, float x, float y) {
@@ -198,6 +184,10 @@ public class GameView extends FrameLayout {
     }
 
     public void move(float x, float y, Runnable onMoved) {
+        Log.d("TAG", "move: ");
+        if (dialogAnimation != null) {
+            dialogAnimation.cancel();
+        }
         float centerPlayer = player.getX() + player.getWidth() / 2f;
 
         boolean left = x >= centerPlayer;
@@ -206,29 +196,14 @@ public class GameView extends FrameLayout {
         movementAnimation = player.animate()
                 .x(x)
                 .y(y)
-                .setDuration(1000);
-
-        movementAnimation.setListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(@NonNull Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(@NonNull Animator animation) {
-                onMoved.run();
-            }
-
-            @Override
-            public void onAnimationCancel(@NonNull Animator animation) {
-                onMoved.run();
-            }
-
-            @Override
-            public void onAnimationRepeat(@NonNull Animator animation) {
-
-            }
-        });
+                .setDuration(1000)
+                .withStartAction(() -> {
+                    mediaManager.startSteps();
+                })
+                .withEndAction(() -> {
+                    mediaManager.stopSteps();
+                    onMoved.run();
+                });
         movementAnimation.start();
     }
 
@@ -249,29 +224,15 @@ public class GameView extends FrameLayout {
         movementAnimation = player.animate()
                 .x(x)
                 .y(y)
-                .setDuration(1000);
+                .setDuration(1000)
+                .withStartAction(() -> {
+                    mediaManager.startSteps();
+                })
+                .withEndAction(() -> {
+                    mediaManager.stopSteps();
+                    onMoved.run();
+                });
 
-        movementAnimation.setListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(@NonNull Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(@NonNull Animator animation) {
-                onMoved.run();
-            }
-
-            @Override
-            public void onAnimationCancel(@NonNull Animator animation) {
-                onMoved.run();
-            }
-
-            @Override
-            public void onAnimationRepeat(@NonNull Animator animation) {
-
-            }
-        });
         movementAnimation.start();
     }
 }

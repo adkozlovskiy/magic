@@ -1,7 +1,6 @@
 package com.example.magic.services;
 
 import android.content.Context;
-import android.media.AudioManager;
 import android.media.SoundPool;
 
 import com.example.magic.R;
@@ -20,14 +19,14 @@ public class MediaManager {
 
     public MediaManager(Context context) {
         this.context = context;
-        soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 100);
-        backgroundId = soundPool.load(context, R.raw.background, 1);
+        soundPool = new SoundPool.Builder().setMaxStreams(5).build();
+        backgroundId = soundPool.load(context, R.raw.music, 1);
         stepsId = soundPool.load(context, R.raw.steps, 1);
     }
 
     public void startBackgroundMusic() {
         soundPool.pause(backgroundStreamId);
-        backgroundStreamId = soundPool.play(backgroundId, 0.2f, 0.2f, 1, 1, 1);
+        backgroundStreamId = soundPool.play(backgroundId, 0.1f, 0.1f, 1, 1, 1);
     }
 
     public void stopBackgroundMusic() {

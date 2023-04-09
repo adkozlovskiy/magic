@@ -15,6 +15,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import kotlinx.coroutines.flow.MutableSharedFlow;
+
 public class StorageManager {
 
     private Context context;
@@ -26,7 +28,9 @@ public class StorageManager {
         this.preferences = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE);
     }
 
-    public MutableLiveData<Game> gameLiveData = new MutableLiveData<>();
+    public MutableLiveData<Integer> heath = new MutableLiveData<>();
+
+    public MutableLiveData<Transition> transition = new MutableLiveData<>();
 
     public void saveBackgroundImage(String uri) {
         preferences.edit().putString("background", uri).apply();
@@ -61,7 +65,8 @@ public class StorageManager {
         preferences.edit()
                 .putString(GAME_KEY, new Gson().toJson(game))
                 .apply();
-        gameLiveData.postValue(game);
+        heath.setValue(game.getHealth());
+        transition.setValue(game.getLastTransition());
     }
 
     public Game getGame() {
