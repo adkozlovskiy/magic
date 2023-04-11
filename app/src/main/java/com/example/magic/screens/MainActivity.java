@@ -9,27 +9,21 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.magic.GameApplication;
 import com.example.magic.R;
+import com.example.magic.databinding.ActivityMainBinding;
 import com.example.magic.services.StorageManager;
 import com.google.android.material.card.MaterialCardView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MaterialCardView startGame;
-
-    private ImageView settings;
-
-    private MaterialCardView exit;
-
-    private MaterialCardView _continue;
-
     private StorageManager storageManager;
 
-    private ImageView background;
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         View decorView = getWindow().getDecorView();
 
@@ -38,13 +32,7 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(uiOptions);
         storageManager = ((GameApplication) getApplication()).getStorageManager();
 
-        startGame = findViewById(R.id.start_game);
-        settings = findViewById(R.id.settings);
-        exit = findViewById(R.id.exit);
-        _continue = findViewById(R.id.load_game);
-        background = findViewById(R.id.image_view);
-
-        _continue.setOnClickListener(v -> {
+        binding.loadGame.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, GameActivity.class);
             startActivity(intent);
         });
@@ -61,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
         };
 
 
-        startGame.setOnClickListener(listener);
-        settings.setOnClickListener(listener2);
-        exit.setOnClickListener(
+        binding.startGame.setOnClickListener(listener);
+        binding.settings.setOnClickListener(listener2);
+        binding.exit.setOnClickListener(
                 v -> {
                     exit();
                 }

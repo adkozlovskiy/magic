@@ -32,6 +32,8 @@ public class StorageManager {
 
     public MutableLiveData<Transition> transition = new MutableLiveData<>();
 
+    public MutableLiveData<Level> level = new MutableLiveData<>();
+
     public void saveBackgroundImage(String uri) {
         preferences.edit().putString("background", uri).apply();
     }
@@ -67,6 +69,7 @@ public class StorageManager {
                 .apply();
         heath.setValue(game.getHealth());
         transition.setValue(game.getLastTransition());
+        level.setValue(game.getCurrentLevel());
     }
 
     public Game getGame() {

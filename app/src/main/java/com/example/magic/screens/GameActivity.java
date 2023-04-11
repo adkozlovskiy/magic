@@ -1,9 +1,15 @@
 package com.example.magic.screens;
 
+import static android.view.View.VISIBLE;
+
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
@@ -16,6 +22,8 @@ import androidx.navigation.Navigation;
 import com.example.magic.GameApplication;
 import com.example.magic.R;
 import com.example.magic.databinding.ActivityGameBinding;
+import com.example.magic.models.BounceInterpolator;
+import com.example.magic.models.Level;
 import com.example.magic.models.Location;
 import com.example.magic.models.Transition;
 import com.example.magic.services.StorageManager;
@@ -40,6 +48,48 @@ public class GameActivity extends AppCompatActivity {
 
     private Transition eventTransition = null;
 
+    private Level lastLevel = null;
+
+    public void showNextLevel(Level level) {
+        if (level == Level.MUM) {
+            return;
+        }
+        if (level == lastLevel) {
+            return;
+        }
+        lastLevel = level;
+        binding.nextLevelTitle.setAlpha(0f);
+        binding.nextLevelTitle.setVisibility(VISIBLE);
+        binding.nextLevelTitle.animate()
+                .setDuration(1000)
+                .alpha(1f)
+                .withEndAction(() -> {
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        binding.nextLevelTitle.setVisibility(View.GONE);
+                    }, 3000);
+                })
+                .start();
+
+        binding.nextLevelValue.setText(level.toString());
+        binding.nextLevelValue.setAlpha(0f);
+        binding.nextLevelValue.setVisibility(VISIBLE);
+        binding.nextLevelValue.animate()
+                .setDuration(1000)
+                .alpha(1f)
+                .withEndAction(() -> {
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        binding.nextLevelValue.setVisibility(View.GONE);
+                    }, 3000);
+                })
+                .start();
+    }
+
+    public void addToInventory() {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.inventory_update);
+        BounceInterpolator bounceInterpolator = new BounceInterpolator(0.2, 20);
+        animation.setInterpolator(bounceInterpolator);
+        binding.inventoryCard.startAnimation(animation);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,7 +97,7 @@ public class GameActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(GameViewModel.class);
         binding = ActivityGameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        binding.gameView.setAddToInventoryAction(this::addToInventory);
         viewModel.startTimer(60);
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
@@ -130,7 +180,7 @@ public class GameActivity extends AppCompatActivity {
                 binding.timer.setTextColor(
                         getColor(R.color.red)
                 );
-            }else {
+            } else {
                 binding.timer.setTextColor(
                         getColor(R.color.white)
                 );
@@ -166,6 +216,9 @@ public class GameActivity extends AppCompatActivity {
 
 
                 });
+
+        storageManager.level.observe(this, this::showNextLevel);
+
         storageManager.transition.observe(
                 this,
                 transition -> {
@@ -183,13 +236,13 @@ public class GameActivity extends AppCompatActivity {
                     if (transition.getTo() == Location.HOME) {
                         binding.leftLocation.setVisibility(View.GONE);
                     } else {
-                        binding.leftLocation.setVisibility(View.VISIBLE);
+                        binding.leftLocation.setVisibility(VISIBLE);
                     }
 
                     if (transition.getTo() == Location.CAVE) {
                         binding.rightLocation.setVisibility(View.GONE);
                     } else {
-                        binding.rightLocation.setVisibility(View.VISIBLE);
+                        binding.rightLocation.setVisibility(VISIBLE);
                     }
 
                     if (transition.getTo() == Location.HOME) {

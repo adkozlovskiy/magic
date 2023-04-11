@@ -44,12 +44,12 @@
         app:layout_constraintTop_toTopOf="@id/inventory_card" />
 
     <TextView
-        android:background="@drawable/bg_rounded_alpha"
         android:id="@+id/timer"
-        android:paddingVertical="4dp"
-        android:paddingHorizontal="12dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_rounded_alpha"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
         android:textColor="#fff"
         android:textSize="21sp"
         app:layout_constraintBottom_toBottomOf="@id/inventory_card"
@@ -126,5 +126,34 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline" />
+
+    <TextView
+        android:id="@+id/next_level_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Вы перешли на новый уровень"
+        android:textColor="#fff"
+        android:textSize="21sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/next_level_value"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/next_level_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="РЫНОК"
+        android:textColor="#fff"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/next_level_title" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

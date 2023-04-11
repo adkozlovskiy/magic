@@ -11,9 +11,18 @@ import androidx.fragment.app.Fragment;
 
 import com.example.magic.GameApplication;
 import com.example.magic.databinding.FragmentHomeBinding;
+import com.example.magic.models.Item;
+import com.example.magic.models.Level;
+import com.example.magic.models.action.Action;
+import com.example.magic.models.action.AddToInventory;
+import com.example.magic.models.action.NextLevelAction;
+import com.example.magic.models.action.NpcMessage;
+import com.example.magic.models.action.UserMessage;
 import com.example.magic.screens.GameActivity;
 import com.example.magic.screens.GameView;
 import com.example.magic.services.StorageManager;
+
+import java.util.List;
 
 public class HouseFragment extends Fragment {
 
@@ -35,13 +44,25 @@ public class HouseFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         storageManager = ((GameApplication) getActivity().getApplication()).getStorageManager();
-
         binding.grandma.setOnClickListener(
                 v -> {
-                    ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + 90, binding.grandma.getWidth(), binding.grandma.getHeight(), () -> {
-                        ((GameActivity) getActivity()).getBinding().gameView.displayPlayerMessage("Привет!", binding.grandma.getX());
-                    });
-                    storageManager.updateHealth(2);
+                    if (storageManager.getGame().getCurrentLevel() == Level.MUM) {
+                        List<Action> grandmaActions = List.of(
+                                new UserMessage("Привет!", binding.grandma.getX()),
+                                new NpcMessage("Доброе утро, сходи за покупками", binding.grandma.getX(), binding.grandma.getY()),
+                                new AddToInventory(Item.PRODUCTS),
+                                new NextLevelAction()
+                        );
+                        ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + 90, binding.grandma.getWidth(), binding.grandma.getHeight(), () -> {
+                            ((GameActivity) getActivity()).getBinding().gameView.setUpActions(grandmaActions);
+                        });
+                    } else {
+                        List<Action> grandmaActions = List.of(
+                                new NpcMessage("Ты уже сходил за продуктами?", binding.grandma.getX(), binding.grandma.getY()));
+                        ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + 90, binding.grandma.getWidth(), binding.grandma.getHeight(), () -> {
+                            ((GameActivity) getActivity()).getBinding().gameView.setUpActions(grandmaActions);
+                        });
+                    }
                 }
         );
     }

@@ -17,7 +17,17 @@ import androidx.annotation.Nullable;
 
 import com.example.magic.GameApplication;
 import com.example.magic.R;
+import com.example.magic.models.action.Action;
+import com.example.magic.models.action.AddToInventory;
+import com.example.magic.models.action.NextLevelAction;
+import com.example.magic.models.action.NpcMessage;
+import com.example.magic.models.action.RemoveFromInventory;
+import com.example.magic.models.action.UserMessage;
 import com.example.magic.services.MediaManager;
+import com.example.magic.services.StorageManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameView extends FrameLayout {
 
@@ -46,9 +56,26 @@ public class GameView extends FrameLayout {
 
     private MediaManager mediaManager;
 
+    private StorageManager storageManager;
+
+    private List<Action> actions = new ArrayList<>();
+
+    private Runnable addToInventoryAction;
+
+    public void setAddToInventoryAction(Runnable addToInventoryAction) {
+        this.addToInventoryAction = addToInventoryAction;
+    }
+
+    public boolean isActionInProgress() {
+        return currentAction < actions.size();
+    }
+
+    private int currentAction = 0;
+
     public GameView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         mediaManager = ((GameApplication) context.getApplicationContext()).getMediaManager();
+        storageManager = ((GameApplication) context.getApplicationContext()).getStorageManager();
         player = new ImageView(context, attrs);
         player.setLayoutParams(lp);
         player.setImageResource(R.drawable.player);
@@ -141,10 +168,13 @@ public class GameView extends FrameLayout {
                     @Override
                     public boolean onTouch(View view, MotionEvent motionEvent) {
                         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                            if (dialog.getVisibility() == VISIBLE) {
-                                dialog.setVisibility(GONE);
+                            if (isActionInProgress()) {
+                                play();
                                 return false;
                             }
+                            actions = new ArrayList<>();
+                            currentAction = 0;
+                            dialog.setVisibility(GONE);
                             float y = motionEvent.getY();
                             if (y < maxHeight) {
                                 y = maxHeight;
@@ -157,6 +187,37 @@ public class GameView extends FrameLayout {
                     }
                 }
         );
+    }
+
+    public void setUpActions(List<Action> actions) {
+        if (this.actions.isEmpty()) {
+            this.actions = actions;
+            currentAction = 0;
+            play();
+        }
+    }
+
+    private void play() {
+        dialog.setVisibility(GONE);
+        Action action = actions.get(currentAction);
+        if (action instanceof UserMessage) {
+            UserMessage message = ((UserMessage) action);
+            displayPlayerMessage(message.getText(), message.getNpcCenter());
+        } else if (action instanceof NpcMessage) {
+            NpcMessage message = ((NpcMessage) action);
+            displayNpcMessage(message.getText(), message.getX(), message.getY());
+        } else if (action instanceof NextLevelAction) {
+            // отображать надпись новый уровень
+            storageManager.nextLevel();
+        } else if (action instanceof AddToInventory) {
+            storageManager.addToInventory(((AddToInventory) action).getItem());
+            if (addToInventoryAction != null) {
+                addToInventoryAction.run();
+            }
+        } else if (action instanceof RemoveFromInventory) {
+            storageManager.removeForInventory(((RemoveFromInventory) action).getItem());
+        }
+        currentAction++;
     }
 
     public void displayPlayerMessage(String text, float npcX) {
@@ -180,7 +241,19 @@ public class GameView extends FrameLayout {
     }
 
     public void displayNpcMessage(String text, float x, float y) {
+        dialog.setText(text);
+        dialog.setX(x);
+        dialog.setY(y);
 
+        if (dialogAnimation != null) {
+            dialogAnimation.cancel();
+        }
+        dialog.setAlpha(0f);
+        dialog.setVisibility(VISIBLE);
+        dialogAnimation = dialog.animate()
+                .setDuration(1000)
+                .alpha(1f);
+        dialogAnimation.start();
     }
 
     public void move(float x, float y, Runnable onMoved) {
