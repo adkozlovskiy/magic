@@ -51,7 +51,7 @@ public class GameActivity extends AppCompatActivity {
     private Level lastLevel = null;
 
     public void showNextLevel(Level level) {
-        if (level == Level.MUM) {
+        if (level == Level.MUM || level == Level.LAST) {
             return;
         }
         if (level == lastLevel) {
@@ -98,7 +98,6 @@ public class GameActivity extends AppCompatActivity {
         binding = ActivityGameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.gameView.setAddToInventoryAction(this::addToInventory);
-        viewModel.startTimer(60);
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
         navController.addOnDestinationChangedListener(
@@ -151,6 +150,7 @@ public class GameActivity extends AppCompatActivity {
         });
 
         binding.rightLocation.setOnClickListener(v -> {
+            binding.gameView.cancelActions();
             binding.gameView.moveToRightLocation(() -> {
                 Log.d("TAG", "MOVED");
                 storageManager.rightLocation(currentLocation);
@@ -158,6 +158,7 @@ public class GameActivity extends AppCompatActivity {
         });
 
         binding.leftLocation.setOnClickListener(v -> {
+            binding.gameView.cancelActions();
             binding.gameView.moveToLeftLocation(() -> {
                 Log.d("TAG", "MOVED");
                 storageManager.leftLocation(currentLocation);
@@ -170,6 +171,11 @@ public class GameActivity extends AppCompatActivity {
         });
 
         viewModel.timerData.observe(this, s -> {
+            if (s == null) {
+                binding.timerBg.setVisibility(View.GONE);
+                return;
+            }
+            binding.timerBg.setVisibility(VISIBLE);
             long minutes = s / 60;
             long seconds = s % 60;
 
@@ -187,7 +193,6 @@ public class GameActivity extends AppCompatActivity {
             }
 
             if (s == 0) {
-                // TODO game over
                 storageManager.gameOver(false);
             }
         });
@@ -211,13 +216,22 @@ public class GameActivity extends AppCompatActivity {
                             binding.heartThree.setAlpha(0.3f);
                         }
                     } else {
-                        // end game
+                        storageManager.gameOver(false);
                     }
-
-
                 });
 
-        storageManager.level.observe(this, this::showNextLevel);
+        storageManager.level.observe(this, level -> {
+            showNextLevel(level);
+            if (level == Level.LAST) {
+                storageManager.gameOver(true);
+            }
+        });
+
+        storageManager.gameOver.observe(this, gameOver -> {
+            if (gameOver != null && gameOver) {
+                GameOverFragment.getInstance(storageManager.getGame().getVictory()).show(getSupportFragmentManager(), "GAME OVER");
+            }
+        });
 
         storageManager.transition.observe(
                 this,

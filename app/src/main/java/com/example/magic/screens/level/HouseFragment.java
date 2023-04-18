@@ -53,13 +53,13 @@ public class HouseFragment extends Fragment {
                                 new AddToInventory(Item.PRODUCTS),
                                 new NextLevelAction()
                         );
-                        ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + 90, binding.grandma.getWidth(), binding.grandma.getHeight(), () -> {
+                        ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + binding.grandma.getHeight(), binding.grandma.getWidth(), binding.grandma.getHeight(), () -> {
                             ((GameActivity) getActivity()).getBinding().gameView.setUpActions(grandmaActions);
                         });
                     } else {
                         List<Action> grandmaActions = List.of(
                                 new NpcMessage("Ты уже сходил за продуктами?", binding.grandma.getX(), binding.grandma.getY()));
-                        ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + 90, binding.grandma.getWidth(), binding.grandma.getHeight(), () -> {
+                        ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.grandma.getX(), binding.grandma.getY() + binding.grandma.getHeight(), binding.grandma.getWidth(), binding.grandma.getHeight(), () -> {
                             ((GameActivity) getActivity()).getBinding().gameView.setUpActions(grandmaActions);
                         });
                     }

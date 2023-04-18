@@ -34,6 +34,8 @@ public class StorageManager {
 
     public MutableLiveData<Level> level = new MutableLiveData<>();
 
+    public MutableLiveData<Boolean> gameOver = new MutableLiveData<>();
+
     public void saveBackgroundImage(String uri) {
         preferences.edit().putString("background", uri).apply();
     }
@@ -70,6 +72,7 @@ public class StorageManager {
         heath.setValue(game.getHealth());
         transition.setValue(game.getLastTransition());
         level.setValue(game.getCurrentLevel());
+        gameOver.setValue(game.getGameOver());
     }
 
     public Game getGame() {
@@ -159,6 +162,7 @@ public class StorageManager {
 
     public void gameOver(boolean victory) {
         Game game = getGame();
+        game.setGameOver(true);
         game.setVictory(victory);
 
         saveGame(game);

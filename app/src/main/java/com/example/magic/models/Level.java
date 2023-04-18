@@ -33,5 +33,8 @@ public enum Level {
     RETURN_EGG,
 
     // Лечим маму
-    HEALTH_MUM
+    HEALTH_MUM,
+
+    // Последний уровень
+    LAST
 }

@@ -15,6 +15,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieDrawable;
 import com.example.magic.GameApplication;
 import com.example.magic.R;
 import com.example.magic.models.action.Action;
@@ -34,7 +36,7 @@ public class GameView extends FrameLayout {
     private static final int EDGE_MARGIN_X = 200;
     private static final int EDGE_MARGIN_Y = 50;
 
-    private ImageView player;
+    private LottieAnimationView player;
 
     private boolean firstLayout = true;
 
@@ -76,12 +78,13 @@ public class GameView extends FrameLayout {
         super(context, attrs);
         mediaManager = ((GameApplication) context.getApplicationContext()).getMediaManager();
         storageManager = ((GameApplication) context.getApplicationContext()).getStorageManager();
-        player = new ImageView(context, attrs);
+        player = new LottieAnimationView(context, attrs);
+        player.setRepeatCount(LottieDrawable.INFINITE);
+        player.setAnimation("walking.json");
         player.setLayoutParams(lp);
-        player.setImageResource(R.drawable.player);
 
-        int playerHeight = Math.round(722 * 0.7f);
-        int playerWidth = Math.round(324 * 0.7f);
+        int playerHeight = 300;
+        int playerWidth = 200;
 
         player.getLayoutParams().height = playerHeight;
         player.getLayoutParams().width = playerWidth;
@@ -168,6 +171,7 @@ public class GameView extends FrameLayout {
                     @Override
                     public boolean onTouch(View view, MotionEvent motionEvent) {
                         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                            Log.d("TAG", "onTouch: " + isActionInProgress());
                             if (isActionInProgress()) {
                                 play();
                                 return false;
@@ -197,8 +201,17 @@ public class GameView extends FrameLayout {
         }
     }
 
+    public void cancelActions() {
+        this.actions = new ArrayList<>();
+        currentAction = 0;
+        play();
+    }
+
     private void play() {
         dialog.setVisibility(GONE);
+        if (actions.isEmpty()) {
+            return;
+        }
         Action action = actions.get(currentAction);
         if (action instanceof UserMessage) {
             UserMessage message = ((UserMessage) action);
@@ -266,23 +279,29 @@ public class GameView extends FrameLayout {
         boolean left = x >= centerPlayer;
         smoothRotate(left);
 
+
         movementAnimation = player.animate()
                 .x(x)
                 .y(y)
-                .setDuration(1000)
+                .setDuration(1500)
                 .withStartAction(() -> {
                     mediaManager.startSteps();
+                    player.playAnimation();
                 })
                 .withEndAction(() -> {
                     mediaManager.stopSteps();
+                    player.cancelAnimation();
                     onMoved.run();
                 });
         movementAnimation.start();
     }
 
     public void npcMove(float x, float y, float width, float height, Runnable onMoved) {
+        if (isActionInProgress()) {
+            return;
+        }
         float centerPlayer = player.getX() + player.getWidth() / 2f;
-
+        Log.d("TAG", "npc move: ");
         boolean left = x >= centerPlayer;
 
         smoothRotate(left);
@@ -296,13 +315,15 @@ public class GameView extends FrameLayout {
 
         movementAnimation = player.animate()
                 .x(x)
-                .y(y)
-                .setDuration(1000)
+                .y(y - player.getHeight())
+                .setDuration(1500)
                 .withStartAction(() -> {
                     mediaManager.startSteps();
+                    player.playAnimation();
                 })
                 .withEndAction(() -> {
                     mediaManager.stopSteps();
+                    player.cancelAnimation();
                     onMoved.run();
                 });
 

@@ -13,8 +13,15 @@ import com.example.magic.GameApplication;
 import com.example.magic.databinding.FragmentForestBinding;
 import com.example.magic.models.Item;
 import com.example.magic.models.Level;
+import com.example.magic.models.action.Action;
+import com.example.magic.models.action.AddToInventory;
+import com.example.magic.models.action.NextLevelAction;
+import com.example.magic.models.action.NpcMessage;
+import com.example.magic.models.action.UserMessage;
 import com.example.magic.screens.GameActivity;
 import com.example.magic.services.StorageManager;
+
+import java.util.List;
 
 public class ForestFragment extends Fragment {
 
@@ -36,10 +43,13 @@ public class ForestFragment extends Fragment {
         if (storageManager.getGame().getCurrentLevel() == Level.EGG) {
             binding.egg.setVisibility(View.VISIBLE);
             binding.egg.setOnClickListener(v -> {
-                ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.egg.getX(), binding.egg.getY() - 170, binding.egg.getWidth(), binding.egg.getHeight(), () -> {
-                    storageManager.addToInventory(Item.EGG);
+                List<Action> eggActions = List.of(
+                        new AddToInventory(Item.EGG),
+                        new NextLevelAction()
+                );
+                ((GameActivity) getActivity()).getBinding().gameView.npcMove(binding.egg.getX(), binding.egg.getY() + binding.egg.getHeight(), binding.egg.getWidth(), binding.egg.getHeight(), () -> {
                     binding.egg.setVisibility(View.GONE);
-                    storageManager.nextLevel();
+                    ((GameActivity) getActivity()).getBinding().gameView.setUpActions(eggActions);
                 });
             });
         } else {

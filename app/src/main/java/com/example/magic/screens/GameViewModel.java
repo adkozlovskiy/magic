@@ -9,7 +9,7 @@ public class GameViewModel extends ViewModel {
 
     private CountDownTimer timer;
 
-    public MutableLiveData<Long> timerData = new MutableLiveData<>();
+    public MutableLiveData<Long> timerData = new MutableLiveData<>(null);
 
     public void startTimer(long seconds) {
         timer = new CountDownTimer(seconds * 1000, 1000) {

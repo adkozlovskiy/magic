@@ -29,4 +29,8 @@
         android:id="@+id/inventoryFragment"
         android:name="com.example.magic.screens.InventoryFragment"
         android:label="InventoryFragment" />
+    <fragment
+        android:id="@+id/gameOverFragment"
+        android:name="com.example.magic.screens.GameOverFragment"
+        android:label="GameOverFragment" />
 </navigation>
