@@ -19,4 +19,11 @@
         android:src="@drawable/egg"
         tools:layout_editor_absoluteX="380dp"
         tools:layout_editor_absoluteY="301dp" />
+
+    <ImageView
+        android:layout_width="169dp"
+        android:layout_height="221dp"
+        android:layout_x="439dp"
+        android:layout_y="136dp"
+        android:src="@drawable/yaga" />
 </AbsoluteLayout>

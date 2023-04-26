@@ -2,12 +2,18 @@ package com.example.magic.screens;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,11 +25,14 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
 import com.example.magic.GameApplication;
 import com.example.magic.R;
+import com.example.magic.databinding.DialogChooseBinding;
 import com.example.magic.models.action.Action;
 import com.example.magic.models.action.AddToInventory;
+import com.example.magic.models.action.ChooseAction;
 import com.example.magic.models.action.NextLevelAction;
 import com.example.magic.models.action.NpcMessage;
 import com.example.magic.models.action.RemoveFromInventory;
+import com.example.magic.models.action.RunnableAction;
 import com.example.magic.models.action.UserMessage;
 import com.example.magic.services.MediaManager;
 import com.example.magic.services.StorageManager;
@@ -229,6 +238,37 @@ public class GameView extends FrameLayout {
             }
         } else if (action instanceof RemoveFromInventory) {
             storageManager.removeForInventory(((RemoveFromInventory) action).getItem());
+        } else if (action instanceof RunnableAction) {
+            ((RunnableAction) action).getRunnable().run();
+        } else if (action instanceof ChooseAction) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            DialogChooseBinding binding = DialogChooseBinding.inflate(
+                    LayoutInflater.from(getContext()), this, false
+            );
+
+            ChooseAction chooseAction = (ChooseAction) action;
+            binding.title.setText(chooseAction.getTitle());
+            binding.first.setText(chooseAction.getFirstTitle());
+            binding.second.setText(chooseAction.getSecondTitle());
+
+            builder.setView(binding.getRoot());
+
+            AlertDialog dialog1 = builder.show();
+            dialog1.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+            dialog1.getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+
+            dialog1.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            binding.first.setOnClickListener(v ->
+            {
+                chooseAction.getFirstAction().run();
+                dialog1.cancel();
+            });
+            binding.second.setOnClickListener(v -> {
+                chooseAction.getSecondAction().run();
+                dialog1.cancel();
+            });
         }
         currentAction++;
     }

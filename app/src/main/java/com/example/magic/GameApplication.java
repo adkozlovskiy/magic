@@ -15,8 +15,6 @@ public class GameApplication extends Application {
     public void onCreate() {
         super.onCreate();
         storageManager = new StorageManager(this);
-        storageManager.heath.setValue(storageManager.getGame().getHealth());
-        storageManager.transition.setValue(storageManager.getGame().getLastTransition());
 
         mediaManager = new MediaManager(this);
         if (storageManager.isMusicEnabled()) {

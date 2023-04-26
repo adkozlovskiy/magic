@@ -27,6 +27,7 @@ public class GameViewModel extends ViewModel {
     }
 
     public void stopTimer() {
+        timerData.setValue(null);
         timer.cancel();
         timer = null;
     }

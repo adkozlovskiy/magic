@@ -29,6 +29,8 @@ public class ForestFragment extends Fragment {
 
     private StorageManager storageManager;
 
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

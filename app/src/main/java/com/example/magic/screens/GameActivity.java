@@ -38,7 +38,7 @@ public class GameActivity extends AppCompatActivity {
         return binding;
     }
 
-    private GameViewModel viewModel;
+    public GameViewModel viewModel;
 
     private StorageManager storageManager;
 
@@ -91,11 +91,20 @@ public class GameActivity extends AppCompatActivity {
         binding.inventoryCard.startAnimation(animation);
     }
 
+    public void setRightLocationVisible(int visible) {
+        binding.rightLocation.setVisibility(visible);
+    }
+
+    public void setLeftLocationVisible(int visible) {
+        binding.leftLocation.setVisibility(visible);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(GameViewModel.class);
         binding = ActivityGameBinding.inflate(getLayoutInflater());
+
         setContentView(binding.getRoot());
         binding.gameView.setAddToInventoryAction(this::addToInventory);
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
@@ -115,6 +124,10 @@ public class GameActivity extends AppCompatActivity {
         );
 
         storageManager = ((GameApplication) getApplication()).getStorageManager();
+        storageManager.heath.setValue(storageManager.getGame().getHealth());
+        storageManager.transition.setValue(storageManager.getGame().getLastTransition());
+        storageManager.level.setValue(storageManager.getGame().getCurrentLevel());
+        storageManager.gameOver.setValue(storageManager.getGame().getGameOver());
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);

@@ -25,6 +25,26 @@ public class Game {
 
     private Boolean victory;
 
+    private Boolean forestUnlocked;
+
+    private Boolean caveUnlocked;
+
+    public Boolean getForestUnlocked() {
+        return forestUnlocked;
+    }
+
+    public void setForestUnlocked(Boolean forestUnlocked) {
+        this.forestUnlocked = forestUnlocked;
+    }
+
+    public Boolean getCaveUnlocked() {
+        return caveUnlocked;
+    }
+
+    public void setCaveUnlocked(Boolean caveUnlocked) {
+        this.caveUnlocked = caveUnlocked;
+    }
+
     public Boolean getVictory() {
         return victory;
     }

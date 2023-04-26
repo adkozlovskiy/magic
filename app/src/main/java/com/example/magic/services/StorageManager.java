@@ -61,7 +61,14 @@ public class StorageManager {
         );
         game.setCurrentLevel(Level.MUM);
         game.setHelpForOldMan(null);
+        game.setForestUnlocked(false);
 
+        saveGame(game);
+    }
+
+    public void setHelpForOldMan(boolean help) {
+        Game game = getGame();
+        game.setHelpForOldMan(help);
         saveGame(game);
     }
 
@@ -109,6 +116,18 @@ public class StorageManager {
                     Level.values()[nextLevelIndex]
             );
         }
+        saveGame(game);
+    }
+
+    public void setLevel(Level level) {
+        Game game = getGame();
+        game.setCurrentLevel(level);
+        saveGame(game);
+    }
+
+    public void unlockForest() {
+        Game game = getGame();
+        game.setForestUnlocked(true);
         saveGame(game);
     }
 
