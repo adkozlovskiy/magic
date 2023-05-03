@@ -10,8 +10,11 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.magic.GameApplication;
+import com.example.magic.R;
 import com.example.magic.databinding.FragmentGameOverBinding;
 
 public class GameOverFragment extends DialogFragment {
@@ -38,12 +41,15 @@ public class GameOverFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         binding.use.setOnClickListener(v -> {
             dismiss();
+            ((GameApplication)getActivity().getApplication()).getStorageManager().nullGame();
             requireActivity().finish();
         });
         boolean victory = getArguments().getBoolean("victory");
         if (victory) {
+            binding.status.setTextColor(ResourcesCompat.getColor(getResources(), android.R.color.holo_green_dark, getActivity().getTheme()));
             binding.status.setText("Вы победили!");
         } else {
+            binding.status.setTextColor(ResourcesCompat.getColor(getResources(), android.R.color.holo_red_dark, getActivity().getTheme()));
             binding.status.setText("Вы проиграли");
         }
     }

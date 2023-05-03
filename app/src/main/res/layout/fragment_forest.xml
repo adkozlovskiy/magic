@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,18 +11,19 @@
 
     <ImageView
         android:id="@+id/egg"
-        android:layout_width="61dp"
-        android:layout_height="70dp"
-        android:layout_x="160dp"
-        android:layout_y="308dp"
-        android:src="@drawable/egg"
-        tools:layout_editor_absoluteX="380dp"
-        tools:layout_editor_absoluteY="301dp" />
+        android:layout_width="72dp"
+        android:layout_height="75dp"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="359dp"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/egg" />
 
     <ImageView
-        android:layout_width="169dp"
-        android:layout_height="221dp"
-        android:layout_x="439dp"
-        android:layout_y="136dp"
+        android:id="@+id/yaga"
+        android:layout_width="148.6dp"
+        android:layout_height="315.3dp"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="190dp"
+        android:layout_marginBottom="25dp"
         android:src="@drawable/yaga" />
-</AbsoluteLayout>
+</FrameLayout>

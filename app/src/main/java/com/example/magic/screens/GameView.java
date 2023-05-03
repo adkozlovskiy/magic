@@ -70,13 +70,6 @@ public class GameView extends FrameLayout {
     private StorageManager storageManager;
 
     private List<Action> actions = new ArrayList<>();
-
-    private Runnable addToInventoryAction;
-
-    public void setAddToInventoryAction(Runnable addToInventoryAction) {
-        this.addToInventoryAction = addToInventoryAction;
-    }
-
     public boolean isActionInProgress() {
         return currentAction < actions.size();
     }
@@ -90,13 +83,15 @@ public class GameView extends FrameLayout {
         player = new LottieAnimationView(context, attrs);
         player.setRepeatCount(LottieDrawable.INFINITE);
         player.setAnimation("walking.json");
+        player.setScaleX(1.2f);
+        player.setScaleY(1.2f);
         player.setLayoutParams(lp);
 
-        int playerHeight = 300;
-        int playerWidth = 200;
+        float playerHeight = 300 * 1.2f;
+        float playerWidth = 200 * 1.2f;
 
-        player.getLayoutParams().height = playerHeight;
-        player.getLayoutParams().width = playerWidth;
+        player.getLayoutParams().height = (int) playerHeight;
+        player.getLayoutParams().width = (int) playerWidth;
 
         dialog = new TextView(context, attrs);
         dialog.setLayoutParams(lpDialog);
@@ -180,7 +175,6 @@ public class GameView extends FrameLayout {
                     @Override
                     public boolean onTouch(View view, MotionEvent motionEvent) {
                         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                            Log.d("TAG", "onTouch: " + isActionInProgress());
                             if (isActionInProgress()) {
                                 play();
                                 return false;
@@ -231,12 +225,7 @@ public class GameView extends FrameLayout {
         } else if (action instanceof NextLevelAction) {
             // отображать надпись новый уровень
             storageManager.nextLevel();
-        } else if (action instanceof AddToInventory) {
-            storageManager.addToInventory(((AddToInventory) action).getItem());
-            if (addToInventoryAction != null) {
-                addToInventoryAction.run();
-            }
-        } else if (action instanceof RemoveFromInventory) {
+        }else if (action instanceof RemoveFromInventory) {
             storageManager.removeForInventory(((RemoveFromInventory) action).getItem());
         } else if (action instanceof RunnableAction) {
             ((RunnableAction) action).getRunnable().run();
@@ -249,7 +238,7 @@ public class GameView extends FrameLayout {
             ChooseAction chooseAction = (ChooseAction) action;
             binding.title.setText(chooseAction.getTitle());
             binding.first.setText(chooseAction.getFirstTitle());
-            binding.second.setText(chooseAction.getSecondTitle());
+            binding.secoond.setText(chooseAction.getSecondTitle());
 
             builder.setView(binding.getRoot());
 
@@ -265,7 +254,7 @@ public class GameView extends FrameLayout {
                 chooseAction.getFirstAction().run();
                 dialog1.cancel();
             });
-            binding.second.setOnClickListener(v -> {
+            binding.secoond.setOnClickListener(v -> {
                 chooseAction.getSecondAction().run();
                 dialog1.cancel();
             });
@@ -310,7 +299,6 @@ public class GameView extends FrameLayout {
     }
 
     public void move(float x, float y, Runnable onMoved) {
-        Log.d("TAG", "move: ");
         if (dialogAnimation != null) {
             dialogAnimation.cancel();
         }
@@ -341,7 +329,6 @@ public class GameView extends FrameLayout {
             return;
         }
         float centerPlayer = player.getX() + player.getWidth() / 2f;
-        Log.d("TAG", "npc move: ");
         boolean left = x >= centerPlayer;
 
         smoothRotate(left);

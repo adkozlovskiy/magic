@@ -3,15 +3,14 @@ package com.example.magic.screens;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.magic.GameApplication;
 import com.example.magic.R;
 import com.example.magic.databinding.ActivityMainBinding;
+import com.example.magic.services.MediaManager;
 import com.example.magic.services.StorageManager;
-import com.google.android.material.card.MaterialCardView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,14 +42,36 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         };
 
+        boolean musicEnabled = storageManager.isMusicEnabled();
+        MediaManager mediaManager = ((GameApplication) getApplication()).getMediaManager();
+
+        boolean continueAvailable = storageManager.getGame() != null;
+        if (continueAvailable) {
+            binding.loadGame.setVisibility(View.VISIBLE);
+        } else {
+            binding.loadGame.setVisibility(View.GONE);
+        }
+
+        if (musicEnabled) {
+            binding.music.setImageResource(R.drawable.ic_music_on);
+            mediaManager.startBackgroundMusic();
+        } else {
+            binding.music.setImageResource(R.drawable.ic_music_off);
+            mediaManager.stopBackgroundMusic();
+        }
         View.OnClickListener listener2 = view -> {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
+            storageManager.setMusicEnabled();
+            if (storageManager.isMusicEnabled()) {
+                mediaManager.stopBackgroundMusic();
+                binding.music.setImageResource(R.drawable.ic_music_off);
+            } else {
+                mediaManager.startBackgroundMusic();
+                binding.music.setImageResource(R.drawable.ic_music_on);
+            }
         };
 
-
         binding.startGame.setOnClickListener(listener);
-        binding.settings.setOnClickListener(listener2);
+        binding.music.setOnClickListener(listener2);
         binding.exit.setOnClickListener(
                 v -> {
                     exit();

@@ -3,44 +3,50 @@ package com.example.magic.models;
 public enum Level {
 
     // Получаем список продуктов
-    MUM,
+    MUM(""),
 
     // Идем за продуктами
-    GO_TO_SHOPPING,
+    GO_TO_SHOPPING("На рынок"),
 
     // Собираем
-    SHOPPING,
+    SHOPPING("Картошка"),
 
     // Диалог со стариком
-    OLD_MAN,
+    OLD_MAN(""),
 
     // Выкладывать продукты
-    PUT_PRODUCTS,
+    PUT_PRODUCTS(""),
 
     // Таблетки для старика
-    PILLS,
+    PILLS(""),
 
     // Баба Яга, идем к Бабе Яге
-    BABA_YAGA,
+    BABA_YAGA("Баба Яга"),
 
     // Идем за Снупом
-    SNUP,
+    SNUP("Снуп"),
 
     // Отдать Снуп Бабе Яге
-    GIVE_SNUP,
+    GIVE_SNUP(""),
 
     // Идем к Кощею
-    KOSHEY,
+    KOSHEY("Кощей"),
 
     // Ищем яйцо
-    EGG,
+    EGG("Яйцо Кощея"),
 
     // Возвращаем яйцо
-    RETURN_EGG,
+    RETURN_EGG(""),
 
     // Лечим маму
-    HEALTH_MUM,
+    HEALTH_MUM("Лечись!"),
 
     // Последний уровень
-    LAST
+    LAST("");
+
+    public String name;
+
+    Level(String name) {
+        this.name = name;
+    }
 }

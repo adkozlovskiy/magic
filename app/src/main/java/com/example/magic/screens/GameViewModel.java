@@ -12,6 +12,9 @@ public class GameViewModel extends ViewModel {
     public MutableLiveData<Long> timerData = new MutableLiveData<>(null);
 
     public void startTimer(long seconds) {
+        if (timer != null) {
+            timer.cancel();
+        }
         timer = new CountDownTimer(seconds * 1000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -27,8 +30,10 @@ public class GameViewModel extends ViewModel {
     }
 
     public void stopTimer() {
-        timerData.setValue(null);
-        timer.cancel();
-        timer = null;
+        if (timer != null) {
+            timerData.setValue(null);
+            timer.cancel();
+            timer = null;
+        }
     }
 }

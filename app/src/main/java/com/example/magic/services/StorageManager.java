@@ -36,6 +36,8 @@ public class StorageManager {
 
     public MutableLiveData<Boolean> gameOver = new MutableLiveData<>();
 
+    public MutableLiveData<List<Item>> inventory = new MutableLiveData<>();
+
     public void saveBackgroundImage(String uri) {
         preferences.edit().putString("background", uri).apply();
     }
@@ -44,8 +46,8 @@ public class StorageManager {
         return preferences.getString("background", null);
     }
 
-    public void setMusicEnabled(boolean enabled) {
-        preferences.edit().putBoolean("music", enabled).apply();
+    public void setMusicEnabled() {
+        preferences.edit().putBoolean("music", !isMusicEnabled()).apply();
     }
 
     public boolean isMusicEnabled() {
@@ -62,6 +64,8 @@ public class StorageManager {
         game.setCurrentLevel(Level.MUM);
         game.setHelpForOldMan(null);
         game.setForestUnlocked(false);
+        game.setCaveUnlocked(false);
+        game.setGameOver(false);
 
         saveGame(game);
     }
@@ -80,6 +84,11 @@ public class StorageManager {
         transition.setValue(game.getLastTransition());
         level.setValue(game.getCurrentLevel());
         gameOver.setValue(game.getGameOver());
+        inventory.setValue(game.getItems());
+    }
+
+    public void nullGame() {
+        saveGame(null);
     }
 
     public Game getGame() {
@@ -128,6 +137,12 @@ public class StorageManager {
     public void unlockForest() {
         Game game = getGame();
         game.setForestUnlocked(true);
+        saveGame(game);
+    }
+
+    public void unlockCave() {
+        Game game = getGame();
+        game.setCaveUnlocked(true);
         saveGame(game);
     }
 

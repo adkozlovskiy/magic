@@ -23,11 +23,13 @@ import com.example.magic.GameApplication;
 import com.example.magic.R;
 import com.example.magic.databinding.ActivityGameBinding;
 import com.example.magic.models.BounceInterpolator;
+import com.example.magic.models.Item;
 import com.example.magic.models.Level;
 import com.example.magic.models.Location;
 import com.example.magic.models.Transition;
 import com.example.magic.services.StorageManager;
 
+import java.util.List;
 import java.util.Objects;
 
 public class GameActivity extends AppCompatActivity {
@@ -51,10 +53,15 @@ public class GameActivity extends AppCompatActivity {
     private Level lastLevel = null;
 
     public void showNextLevel(Level level) {
-        if (level == Level.MUM || level == Level.LAST) {
+        if (level == lastLevel) {
             return;
         }
-        if (level == lastLevel) {
+        if (level == Level.MUM || level == Level.LAST) {
+            lastLevel = level;
+            return;
+        }
+        if (level.name.isEmpty()) {
+            lastLevel = level;
             return;
         }
         lastLevel = level;
@@ -70,7 +77,7 @@ public class GameActivity extends AppCompatActivity {
                 })
                 .start();
 
-        binding.nextLevelValue.setText(level.toString());
+        binding.nextLevelValue.setText(level.name);
         binding.nextLevelValue.setAlpha(0f);
         binding.nextLevelValue.setVisibility(VISIBLE);
         binding.nextLevelValue.animate()
@@ -99,6 +106,9 @@ public class GameActivity extends AppCompatActivity {
         binding.leftLocation.setVisibility(visible);
     }
 
+    private List<Item> currentInventory = null;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,7 +116,6 @@ public class GameActivity extends AppCompatActivity {
         binding = ActivityGameBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
-        binding.gameView.setAddToInventoryAction(this::addToInventory);
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
         navController.addOnDestinationChangedListener(
@@ -128,6 +137,7 @@ public class GameActivity extends AppCompatActivity {
         storageManager.transition.setValue(storageManager.getGame().getLastTransition());
         storageManager.level.setValue(storageManager.getGame().getCurrentLevel());
         storageManager.gameOver.setValue(storageManager.getGame().getGameOver());
+        storageManager.inventory.setValue(storageManager.getGame().getItems());
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
@@ -165,7 +175,6 @@ public class GameActivity extends AppCompatActivity {
         binding.rightLocation.setOnClickListener(v -> {
             binding.gameView.cancelActions();
             binding.gameView.moveToRightLocation(() -> {
-                Log.d("TAG", "MOVED");
                 storageManager.rightLocation(currentLocation);
             });
         });
@@ -173,13 +182,12 @@ public class GameActivity extends AppCompatActivity {
         binding.leftLocation.setOnClickListener(v -> {
             binding.gameView.cancelActions();
             binding.gameView.moveToLeftLocation(() -> {
-                Log.d("TAG", "MOVED");
                 storageManager.leftLocation(currentLocation);
             });
         });
 
         binding.inventory.setOnClickListener(v -> {
-            Log.d("TAG", "MOVED");
+            (   (GameApplication) getApplication()).getMediaManager().startChest();
             navController.navigate(R.id.inventoryFragment);
         });
 
@@ -210,9 +218,27 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
+        storageManager.inventory.observe(this, in -> {
+            if (storageManager.getGame() == null || storageManager.getGame().getGameOver()) {
+                return;
+            }
+            if (currentInventory == null && !in.isEmpty()) {
+                addToInventory();
+                currentInventory = in;
+            }
+            else if (currentInventory != null && !in.equals(currentInventory)) {
+                addToInventory();
+                currentInventory = in;
+            }
+
+        });
+
         storageManager.heath.observe(
                 this,
                 health -> {
+                    if (storageManager.getGame() == null ||storageManager.getGame().getGameOver()) {
+                        return;
+                    }
                     if (health >= 1) {
                         binding.heartOne.setAlpha(1f);
 
@@ -234,9 +260,13 @@ public class GameActivity extends AppCompatActivity {
                 });
 
         storageManager.level.observe(this, level -> {
+            if (storageManager.getGame() == null ||storageManager.getGame().getGameOver()) {
+                return;
+            }
             showNextLevel(level);
             if (level == Level.LAST) {
                 storageManager.gameOver(true);
+                viewModel.stopTimer();
             }
         });
 
@@ -249,6 +279,9 @@ public class GameActivity extends AppCompatActivity {
         storageManager.transition.observe(
                 this,
                 transition -> {
+                    if (storageManager.getGame() == null ||storageManager.getGame().getGameOver()) {
+                        return;
+                    }
                     if (transition == null || transition.getTo() == null) {
                         return;
                     }
