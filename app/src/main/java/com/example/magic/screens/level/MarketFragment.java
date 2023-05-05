@@ -20,6 +20,7 @@ import com.example.magic.models.action.NextLevelAction;
 import com.example.magic.models.action.NpcMessage;
 import com.example.magic.models.action.RemoveFromInventory;
 import com.example.magic.models.action.RunnableAction;
+import com.example.magic.models.action.UserMessage;
 import com.example.magic.screens.GameActivity;
 import com.example.magic.screens.GameView;
 import com.example.magic.services.StorageManager;
@@ -50,14 +51,18 @@ public class MarketFragment extends Fragment {
             GameActivity activity = ((GameActivity) getActivity());
             GameView gameView = activity.getBinding().gameView;
             if (storageManager.getGame().getForestUnlocked()) {
-               activity.setRightLocationVisible(View.VISIBLE);
+                activity.setRightLocationVisible(View.VISIBLE);
             } else {
                 activity.setRightLocationVisible(View.GONE);
+            }
+            if (l == Level.SHOPPING) {
+                activity.viewModel.startTimer(20);
+                startMimiGame();
             }
             binding.oldMan.setOnClickListener(v -> {
                 if (l == Level.GO_TO_SHOPPING) {
                     List<Action> grandmaActions = List.of(
-                            new NpcMessage("Бери продукты с полок", binding.oldMan.getX(), binding.oldMan.getY()),
+                            new NpcMessage("Бабуля прислала за продуктами?", binding.oldMan.getX(), binding.oldMan.getY()),
                             new RunnableAction(
                                     () -> {
                                         storageManager.removeForInventory(Item.PRODUCTS);
@@ -71,24 +76,21 @@ public class MarketFragment extends Fragment {
                     gameView.npcMove(binding.oldMan.getX(), binding.oldMan.getY() + binding.oldMan.getHeight(), binding.oldMan.getWidth(), binding.oldMan.getHeight(), () -> {
                         gameView.setUpActions(grandmaActions);
                     });
-                } else if (l == Level.SHOPPING) {
-                    activity.viewModel.startTimer(20);
-                    startMimiGame();
-                } else if (l == Level.OLD_MAN) {
+                }  else if (l == Level.OLD_MAN) {
                     List<Action> actions = List.of(
-                            new NpcMessage("Быстро справился. Неси маме", binding.oldMan.getX(), binding.oldMan.getY()),
-                            new NpcMessage("И принеси мне таблеток, голова болит", binding.oldMan.getX(), binding.oldMan.getY()),
+                            new NpcMessage("Сынок, можешь взять лекарство для меня?", binding.oldMan.getX(), binding.oldMan.getY()),
+                            new NpcMessage("Посмотри его у себя дома.", binding.oldMan.getX(), binding.oldMan.getY()),
                             new NpcMessage("А я тебя яблоком угощу", binding.oldMan.getX(), binding.oldMan.getY()),
                             new ChooseAction(
                                     "Помочь старику?",
                                     () -> {
-                                        gameView.displayNpcMessage("Спасибо! Беги обратно к маме", binding.oldMan.getX(), binding.oldMan.getY());
+                                        gameView.displayNpcMessage("Спасибо!", binding.oldMan.getX(), binding.oldMan.getY());
                                         storageManager.setHelpForOldMan(true);
                                         storageManager.nextLevel();
                                     },
                                     "Помочь",
                                     () -> {
-                                        gameView.displayNpcMessage("Иди отсюда домой", binding.oldMan.getX(), binding.oldMan.getY());
+                                        gameView.displayNpcMessage("Иди отсюда", binding.oldMan.getX(), binding.oldMan.getY());
                                         storageManager.setHelpForOldMan(false);
                                         storageManager.nextLevel();
                                     },
@@ -100,14 +102,18 @@ public class MarketFragment extends Fragment {
                     });
                 } else if (l == Level.PILLS) {
                     List<Action> actions = List.of(
-                            new NpcMessage("Спасибо!", binding.oldMan.getX(), binding.oldMan.getY()),
                             new RunnableAction(() -> {
-                               storageManager.removeForInventory(Item.PILLS);
+                                gameView.displayNpcMessage("Спасибо огромное.", binding.oldMan.getX(), binding.oldMan.getY());
+                                storageManager.removeForInventory(Item.PILLS);
                             }),
-                            new NpcMessage("Вот. Как и обещал", binding.oldMan.getX(), binding.oldMan.getY()),
-                            new NpcMessage("Иди дальше своей дорогой", binding.oldMan.getX(), binding.oldMan.getY()),
                             new RunnableAction(() -> {
                                 storageManager.addToInventory(Item.GOLDEN_APPLE);
+                                gameView.displayNpcMessage("Вот тебе золотое яблоко на всякий.", binding.oldMan.getX(), binding.oldMan.getY());
+                            }),
+                            new UserMessage("Извините, а вы не знаете где можно...", binding.oldMan.getX()),
+                            new UserMessage("достать лекарство для моей бабушки?", binding.oldMan.getX()),
+                            new NpcMessage("Да, знаю. В лесу ты найдёшь свой ответ.", binding.oldMan.getX(), binding.oldMan.getY()),
+                            new RunnableAction(() -> {
                                 storageManager.nextLevel();
                                 storageManager.unlockForest();
                             })

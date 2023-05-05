@@ -15,11 +15,7 @@ public class GameApplication extends Application {
     public void onCreate() {
         super.onCreate();
         storageManager = new StorageManager(this);
-
         mediaManager = new MediaManager(this);
-        if (storageManager.isMusicEnabled()) {
-            mediaManager.startBackgroundMusic();
-        }
     }
 
     public StorageManager getStorageManager() {

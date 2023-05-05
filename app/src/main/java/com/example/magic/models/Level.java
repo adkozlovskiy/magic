@@ -6,10 +6,10 @@ public enum Level {
     MUM(""),
 
     // Идем за продуктами
-    GO_TO_SHOPPING("На рынок"),
+    GO_TO_SHOPPING(""),
 
     // Собираем
-    SHOPPING("Картошка"),
+    SHOPPING("Закупка"),
 
     // Диалог со стариком
     OLD_MAN(""),
@@ -24,7 +24,7 @@ public enum Level {
     BABA_YAGA("Баба Яга"),
 
     // Идем за Снупом
-    SNUP("Снуп"),
+    SNUP("???"),
 
     // Отдать Снуп Бабе Яге
     GIVE_SNUP(""),
@@ -39,7 +39,7 @@ public enum Level {
     RETURN_EGG(""),
 
     // Лечим маму
-    HEALTH_MUM("Лечись!"),
+    HEALTH_MUM("Лечись"),
 
     // Последний уровень
     LAST("");

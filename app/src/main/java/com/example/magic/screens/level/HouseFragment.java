@@ -14,10 +14,7 @@ import com.example.magic.databinding.FragmentHomeBinding;
 import com.example.magic.models.Item;
 import com.example.magic.models.Level;
 import com.example.magic.models.action.Action;
-import com.example.magic.models.action.AddToInventory;
-import com.example.magic.models.action.NextLevelAction;
 import com.example.magic.models.action.NpcMessage;
-import com.example.magic.models.action.RemoveFromInventory;
 import com.example.magic.models.action.RunnableAction;
 import com.example.magic.models.action.UserMessage;
 import com.example.magic.screens.GameActivity;
@@ -69,11 +66,13 @@ public class HouseFragment extends Fragment {
             activity.setRightLocationVisible(View.VISIBLE);
             binding.grandma.setOnClickListener(
                     v -> {
-
                         if (l == Level.MUM) {
                             List<Action> grandmaActions = List.of(
-                                    new UserMessage("Привет!", binding.grandma.getX()),
-                                    new NpcMessage("Доброе утро, сходи за покупками", binding.grandma.getX(), binding.grandma.getY()),
+                                    new NpcMessage("Привет, внучок мне стало очень плохо...", binding.grandma.getX(), binding.grandma.getY()),
+                                    new NpcMessage("Можешь ли ты сходить за продуктами...", binding.grandma.getX(), binding.grandma.getY()),
+                                    new NpcMessage("...на рынок?", binding.grandma.getX(), binding.grandma.getY()),
+                                    new NpcMessage("и принести их в дом?", binding.grandma.getX(), binding.grandma.getY()),
+                                    new UserMessage("Привет. Да, хорошо, бабуль, сейчас схожу", binding.grandma.getX()),
                                     new RunnableAction(() -> {
                                         storageManager.addToInventory(Item.PRODUCTS);
                                         storageManager.nextLevel();
@@ -84,8 +83,9 @@ public class HouseFragment extends Fragment {
                             });
                         } else if (l == Level.HEALTH_MUM) {
                             List<Action> actions = List.of(
-                                    new UserMessage("Поправляйся!", binding.grandma.getX()),
-                                    new NpcMessage("Спасибо!", binding.grandma.getX(), binding.grandma.getY()),
+                                    new UserMessage("Привет, бабушка, вот тебе лекарство.", binding.grandma.getX()),
+                                    new NpcMessage("Ого, мне сразу стало лучше", binding.grandma.getX(), binding.grandma.getY()),
+                                    new NpcMessage("Теперь мы сможем нормально жить.", binding.grandma.getX(), binding.grandma.getY()),
                                     new RunnableAction(() -> {
                                         storageManager.removeForInventory(Item.TANTUM_VERDE);
                                         storageManager.nextLevel();
@@ -96,24 +96,23 @@ public class HouseFragment extends Fragment {
                             });
                         } else if (l == Level.PUT_PRODUCTS) {
                             ArrayList<Action> grandmaActions = new ArrayList<Action>() {{
-                                add(new NpcMessage("Спасибо!", binding.grandma.getX(), binding.grandma.getY()));
-                                add(new UserMessage("Пожалуйста", binding.grandma.getX()));
+                                add(new NpcMessage("Спасибо внучок за продукты!", binding.grandma.getX(), binding.grandma.getY()));
+                                add(new NpcMessage("Я пока ещё полежу, а то мне совсем плохо.", binding.grandma.getX(), binding.grandma.getY()));
+                                add(new UserMessage("Бабушка, не волнуйся!", binding.grandma.getX()));
+                                add(new UserMessage("Я обязательно найду лекарство.", binding.grandma.getX()));
                                 add(new RunnableAction(() -> {
                                     storageManager.removeForInventory(Item.SHOPPING_LIST);
                                 }));
                             }};
                             if (storageManager.getGame().getHelpForOldMan()) {
                                 grandmaActions.add(
-                                        new UserMessage("Дай таблетки для старика", binding.grandma.getX())
+                                        new UserMessage("У тебя не найдется таблеток...", binding.grandma.getX())
                                 );
                                 grandmaActions.add(
-                                        new NpcMessage("Конечно!", binding.grandma.getX(), binding.grandma.getY())
+                                        new UserMessage("...для старика с рынка?", binding.grandma.getX())
                                 );
                                 grandmaActions.add(
-                                        new NpcMessage("Слушай, а сходи потом...", binding.grandma.getX(), binding.grandma.getY())
-                                );
-                                grandmaActions.add(
-                                        new NpcMessage("... проведай бабу ягу в лесу", binding.grandma.getX(), binding.grandma.getY())
+                                        new NpcMessage("Найдутся", binding.grandma.getX(), binding.grandma.getY())
                                 );
                                 grandmaActions.add(
                                         new RunnableAction(() -> {
@@ -135,7 +134,7 @@ public class HouseFragment extends Fragment {
                                         new RunnableAction(() -> {
                                             storageManager.setLevel(Level.BABA_YAGA);
                                             storageManager.unlockForest();
-                                            activity.viewModel.startTimer(50);
+                                            activity.viewModel.startTimer(60);
                                         })
                                 );
                             }

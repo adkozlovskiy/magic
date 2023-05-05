@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private StorageManager storageManager;
 
     private ActivityMainBinding binding;
+    private MediaManager mediaManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         };
 
         boolean musicEnabled = storageManager.isMusicEnabled();
-        MediaManager mediaManager = ((GameApplication) getApplication()).getMediaManager();
+        mediaManager = ((GameApplication) getApplication()).getMediaManager();
 
         boolean continueAvailable = storageManager.getGame() != null;
         if (continueAvailable) {
@@ -60,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
             mediaManager.stopBackgroundMusic();
         }
         View.OnClickListener listener2 = view -> {
-            storageManager.setMusicEnabled();
             if (storageManager.isMusicEnabled()) {
                 mediaManager.stopBackgroundMusic();
                 binding.music.setImageResource(R.drawable.ic_music_off);
@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 mediaManager.startBackgroundMusic();
                 binding.music.setImageResource(R.drawable.ic_music_on);
             }
+            storageManager.setMusicEnabled();
         };
 
         binding.startGame.setOnClickListener(listener);

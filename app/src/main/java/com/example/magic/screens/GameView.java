@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
@@ -97,7 +98,7 @@ public class GameView extends FrameLayout {
         dialog.setLayoutParams(lpDialog);
 
         int padding = (int) context.getResources().getDimension(R.dimen.padding12);
-        dialog.setMaxHeight(250);
+        dialog.setMaxHeight(300);
         dialog.setMaxWidth(400);
         dialog.setBackground(context.getResources().getDrawable(R.drawable.bg_rounded, context.getTheme()));
         dialog.setPadding(padding, padding, padding, padding);

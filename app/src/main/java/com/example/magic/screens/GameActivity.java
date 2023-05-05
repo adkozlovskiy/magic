@@ -27,6 +27,7 @@ import com.example.magic.models.Item;
 import com.example.magic.models.Level;
 import com.example.magic.models.Location;
 import com.example.magic.models.Transition;
+import com.example.magic.services.MediaManager;
 import com.example.magic.services.StorageManager;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class GameActivity extends AppCompatActivity {
         return binding;
     }
 
+    private MediaManager mediaManager;
     public GameViewModel viewModel;
 
     private StorageManager storageManager;
@@ -112,6 +114,7 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mediaManager = ((GameApplication) getApplication()).getMediaManager();
         viewModel = new ViewModelProvider(this).get(GameViewModel.class);
         binding = ActivityGameBinding.inflate(getLayoutInflater());
 
@@ -187,7 +190,7 @@ public class GameActivity extends AppCompatActivity {
         });
 
         binding.inventory.setOnClickListener(v -> {
-            (   (GameApplication) getApplication()).getMediaManager().startChest();
+            ((GameApplication) getApplication()).getMediaManager().startChest();
             navController.navigate(R.id.inventoryFragment);
         });
 
@@ -225,8 +228,7 @@ public class GameActivity extends AppCompatActivity {
             if (currentInventory == null && !in.isEmpty()) {
                 addToInventory();
                 currentInventory = in;
-            }
-            else if (currentInventory != null && !in.equals(currentInventory)) {
+            } else if (currentInventory != null && !in.equals(currentInventory)) {
                 addToInventory();
                 currentInventory = in;
             }
@@ -236,7 +238,7 @@ public class GameActivity extends AppCompatActivity {
         storageManager.heath.observe(
                 this,
                 health -> {
-                    if (storageManager.getGame() == null ||storageManager.getGame().getGameOver()) {
+                    if (storageManager.getGame() == null || storageManager.getGame().getGameOver()) {
                         return;
                     }
                     if (health >= 1) {
@@ -260,7 +262,7 @@ public class GameActivity extends AppCompatActivity {
                 });
 
         storageManager.level.observe(this, level -> {
-            if (storageManager.getGame() == null ||storageManager.getGame().getGameOver()) {
+            if (storageManager.getGame() == null || storageManager.getGame().getGameOver()) {
                 return;
             }
             showNextLevel(level);
@@ -279,7 +281,7 @@ public class GameActivity extends AppCompatActivity {
         storageManager.transition.observe(
                 this,
                 transition -> {
-                    if (storageManager.getGame() == null ||storageManager.getGame().getGameOver()) {
+                    if (storageManager.getGame() == null || storageManager.getGame().getGameOver()) {
                         return;
                     }
                     if (transition == null || transition.getTo() == null) {

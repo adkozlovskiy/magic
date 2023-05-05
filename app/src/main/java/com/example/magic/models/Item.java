@@ -3,7 +3,7 @@ package com.example.magic.models;
 import com.example.magic.R;
 
 public enum Item {
-    SHOPPING_LIST(R.drawable.potato_bag), PILLS(R.drawable.pills), GOLDEN_APPLE(R.drawable.apple), PRODUCTS(R.drawable.bag), SNUP(R.drawable.snup), EGG(R.drawable.egg), TANTUM_VERDE(R.drawable.verde);
+    SHOPPING_LIST(R.drawable.avoska), PILLS(R.drawable.pills), GOLDEN_APPLE(R.drawable.apple), PRODUCTS(R.drawable.avoska_empty), SNUP(R.drawable.snup), EGG(R.drawable.egg), TANTUM_VERDE(R.drawable.verde);
 
     private int resId;
 
